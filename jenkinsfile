@@ -1,0 +1,25 @@
+node {
+    def mavenHome = tool name: "maven3.8.5"
+    //Checkout Stage
+    stage('checkout code'){
+        git branch: 'development', credentialsId: 'c69fcd86-f192-42f8-b059-f0dea9d1a46b', url: 'https://github.com/github-testing-sri/maven-web-application.git'
+    }
+    //Build Stage
+    stage('Build stage'){
+        sh "$mavenHome/bin/mvn clean package"
+    }
+    //Generate SonarQube Report
+    stage('SonarQube Report'){
+        sh "$mavenHome/bin/mvn sonar:sonar"
+    }
+    //Upload Artifact Into Artifactory Repository
+    stage('Nexus Artifact Repo'){
+        sh "$mavenHome/bin/mvn deploy"
+    }
+    //Deploy The App Into Tomcat Server
+    stage('Deploy The App Into Tomcat'){
+    sshagent(['b13d3845-f7d1-48ee-87c5-c69dbc21ebf1']) {
+     sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@15.206.73.122:/opt/apache-tomcat-9.0.59/webapps"
+    }  
+    }
+}//node closing
