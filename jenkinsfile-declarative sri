@@ -1,0 +1,40 @@
+pipeline{
+    agent any
+    tools{
+    maven "maven3.8.5"    
+    } 
+    stages{
+        //Github Repository url
+        stage('checkout code'){
+            steps{
+            git branch: 'development', credentialsId: 'c69fcd86-f192-42f8-b059-f0dea9d1a46b', url: 'https://github.com/github-testing-sri/maven-web-application.git'
+        }
+        }
+        //build
+        stage('build'){
+            steps{
+                sh "mvn clean package"
+            }
+        }
+        //sonarQube Report
+        stage('sonarqube report'){
+            steps{
+                sh "mvn sonar:sonar"
+            }
+        }
+        //build artifact into artifactory repository
+        stage('Artifactory Repository '){
+            steps{
+                sh "mvn deploy"
+            }
+        }
+        //deploy application into Tomcat server
+        stage('deploy into Tomcat Server'){
+            steps{
+                sshagent(['b13d3845-f7d1-48ee-87c5-c69dbc21ebf1']) {
+     sh "scp -o StrictHostKeyChecking=no target/maven-web-application.war ec2-user@65.0.86.173:/opt/apache-tomcat-9.0.59/webapps"
+    }  
+            }
+        }
+    }//stages closing
+}//pipeline closing
