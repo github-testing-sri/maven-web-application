@@ -3,7 +3,11 @@ pipeline{
     tools{
     maven "maven3.8.5"    
     } 
-    stages{
+    options {
+  timestamps()
+  buildDiscarder logRotator(artifactDaysToKeepStr: '', artifactNumToKeepStr: '5', daysToKeepStr: '', numToKeepStr: '5')
+}
+stages{
         //Github Repository url
         stage('checkout code'){
             steps{
