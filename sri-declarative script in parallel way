@@ -1,0 +1,27 @@
+pipeline{
+    agent any
+    tools{
+    maven "maven3.8.5"
+    }
+    stages{
+        //Github Repository url
+        stage('checkout code'){
+            steps{
+            git branch: 'development', credentialsId: 'c69fcd86-f192-42f8-b059-f0dea9d1a46b', url: 'https://github.com/github-testing-sri/maven-web-application.git'
+           }
+        }    
+        stage('build and sonarqube report'){
+            steps{
+                parallel(
+                    Build: {
+                        sh "mvn clean package" 
+                    },
+                    Executesonarqubereport: {
+                        sh "mvn sonar:sonar"
+                    }
+                )
+            }
+            
+        }
+     }//stages closing
+    }//pipeline closing
