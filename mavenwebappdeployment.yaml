@@ -4,6 +4,7 @@ metadata:
   name: mavenwebappdeployment
 spec:
   revisionHistoryLimit: 10
+  replicaSet: 2
   strategy:
     type: Recreate
   selector:
